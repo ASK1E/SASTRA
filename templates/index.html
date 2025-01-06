@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SASTRA</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>SASTRA</h1>
+            <p class="subtitle">Static Application Security Testing and Risk Assessment</p>
+        </header>
+
+        <main>
+            <div class="upload-section">
+                <div class="drag-drop-zone" id="dragDropZone">
+                    <img src="/api/placeholder/64/64" alt="upload" class="upload-icon">
+                    <p>Drag & drop your Python file here or</p>
+                    <form id="uploadForm">
+                        <input type="file" id="fileInput" accept=".py" hidden>
+                        <button type="button" class="browse-btn" id="browseBtn">Browse Files</button>
+                    </form>
+                    <p class="file-info" id="fileInfo">Supports .py files up to 16MB</p>
+                </div>
+            </div>
+
+            <div class="scan-options">
+                <h3>Scan Configuration</h3>
+                <div class="options-grid">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="securityCheck" checked>
+                        <span class="checkbox-label">Security Issues</span>
+                    </label>
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="bestPracticesCheck" checked>
+                        <span class="checkbox-label">Best Practices</span>
+                    </label>
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="vulnerabilitiesCheck" checked>
+                        <span class="checkbox-label">Known Vulnerabilities</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="progress-container hidden" id="progressContainer">
+                <div class="progress-bar">
+                    <div class="progress" id="scanProgress"></div>
+                </div>
+                <p class="progress-text">Scanning: <span id="progressText">0%</span></p>
+            </div>
+
+            <div class="results-container hidden" id="resultsContainer">
+                <div class="results-header">
+                    <h2>Scan Results</h2>
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-severity="all">All</button>
+                        <button class="filter-btn" data-severity="critical">Critical</button>
+                        <button class="filter-btn" data-severity="high">High</button>
+                        <button class="filter-btn" data-severity="medium">Medium</button>
+                        <button class="filter-btn" data-severity="low">Low</button>
+                    </div>
+                </div>
+
+                <div class="results-summary" id="resultsSummary">
+                    <!-- Summary will be populated by JavaScript -->
+                </div>
+
+                <div class="results-list" id="resultsList">
+                    <!-- Results will be populated by JavaScript -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
