@@ -1,8 +1,11 @@
-from flask import Flask, jsonify, render_template, request, send_from_directory
-from werkzeug.utils import secure_filename
 import os
+import json
 import subprocess
 import logging
+import tempfile
+from flask import Flask, jsonify, render_template, request, send_from_directory
+from werkzeug.utils import secure_filename
+from io import BytesIO
 
 # Initialize Flask app
 app = Flask(__name__, static_folder='static')
@@ -10,7 +13,6 @@ app = Flask(__name__, static_folder='static')
 # Configuration
 class Config:
     # Upload configuration
-    UPLOAD_FOLDER = './uploads'
     ALLOWED_EXTENSIONS = {'py'}
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB limit
     
@@ -30,9 +32,6 @@ app.config.from_object(Config)
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-# Create upload directory if it doesn't exist
-os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
 
 class VulnerabilityScanner:
     def __init__(self):
@@ -61,48 +60,59 @@ class VulnerabilityScanner:
             return jsonify(status='error', error='Invalid file type'), 400
         
         try:
-            # Save file securely
-            filename = secure_filename(file.filename)
-            filepath = os.path.join(Config.UPLOAD_FOLDER, filename)
-            file.save(filepath)
-            self.logger.info(f'File saved: {filepath}')
+            # Save file to memory
+            file_content = file.read()
+            self.logger.info(f'File received: {file.filename}')
             
             # Run security scan
-            scan_result = self.run_security_scan(filepath)
-            
-            # Clean up
-            os.remove(filepath)
-            self.logger.info(f'File removed: {filepath}')
+            scan_result = self.run_security_scan(file_content)
             
             return scan_result
             
         except Exception as e:
             self.logger.error(f'Error processing file: {str(e)}')
-            if os.path.exists(filepath):
-                os.remove(filepath)
-            raise
+            return jsonify(status='error', error=str(e)), 500
     
-    def run_security_scan(self, filepath):
+    def run_security_scan(self, file_content):
         try:
+            # Save file content to a temporary file on disk
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".py") as temp_file:
+                temp_file.write(file_content)
+                temp_file.flush()
+                temp_file_name = temp_file.name
+
             # Run Bandit security scanner
-            cmd = ['bandit', filepath] + Config.BANDIT_OPTIONS
+            cmd = ["bandit", "-f", "json", temp_file_name]
             result = subprocess.run(
                 cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                text=True
+                text=True,
+                check=False  # Don't raise exception on non-zero return code
             )
-            
-            if result.returncode == 0:
-                self.logger.info('Security scan completed successfully')
-                return jsonify(status='success', output=result.stdout), 200
-            else:
-                self.logger.error(f'Security scan failed: {result.stderr}')
-                return jsonify(status='error', error=result.stderr), 500
-                
+
+            # Clean up the temporary file
+            os.remove(temp_file_name)
+
+            # Parse the JSON output from Bandit
+            try:
+                if result.stdout:
+                    scan_data = json.loads(result.stdout)
+                    return jsonify(status='success', results=json.dumps(scan_data)), 200
+                else:
+                    # If no stdout but process completed
+                    if result.returncode == 0:
+                        return jsonify(status='success', results=json.dumps({'results': []})), 200
+                    else:
+                        # If there was an error
+                        return jsonify(status='error', error=result.stderr), 500
+            except json.JSONDecodeError:
+                self.logger.error('Failed to parse Bandit output')
+                return jsonify(status='error', error='Failed to parse scan results'), 500
+
         except Exception as e:
             self.logger.error(f'Error running security scan: {str(e)}')
-            raise
+            return jsonify(status='error', error=str(e)), 500
 
 # Initialize scanner
 scanner = VulnerabilityScanner()
@@ -124,4 +134,14 @@ def scan():
         return jsonify(status='error', error=str(e)), 500
 
 if __name__ == '__main__':
+    # Verify Bandit is installed
+    try:
+        subprocess.run(['bandit', '--version'], check=True, capture_output=True)
+    except subprocess.CalledProcessError:
+        logger.error("Bandit is not installed. Please install it using 'pip install bandit'")
+        exit(1)
+    except FileNotFoundError:
+        logger.error("Bandit is not installed. Please install it using 'pip install bandit'")
+        exit(1)
+        
     app.run(debug=True)
