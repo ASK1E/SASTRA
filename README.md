@@ -5,7 +5,7 @@ SASTRA is a web-based security analysis tool that helps developers identify pote
 <div align="center">
   <img src="screenshot/1.png" alt="SASTRA Upload Interface" width="600"/>
   <img src="screenshot/2.png" alt="SASTRA Scanning Process" width="600"/>
-  <img src="screenshot/3.png" alt="SASTRA Results Interface" width="600"/>
+  
 </div>
 
 ## Features
