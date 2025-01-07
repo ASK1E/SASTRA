@@ -2,7 +2,11 @@
 
 SASTRA is a web-based security analysis tool that helps developers identify potential security vulnerabilities in Python code. It provides an intuitive interface for uploading and scanning Python files, offering detailed reports with severity levels and remediation advice.
 
-![SASTRA Interface](https://raw.githubusercontent.com/paizy-hub/SASTRA/main/static/img/screenshot.png)
+<div align="center">
+  <img src="screenshot/1.png" alt="SASTRA Upload Interface" width="600"/>
+  <img src="screenshot/2.png" alt="SASTRA Scanning Process" width="600"/>
+  <img src="screenshot/3.png" alt="SASTRA Results Interface" width="600"/>
+</div>
 
 ## Features
 
@@ -119,4 +123,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Tailwind CSS](https://tailwindcss.com/) - For the UI components
 
 ## Contact
-Project Link: (https://github.com/paizy-hub) (https://github.com/paizy-hub/SASTRA)
+
+Project Link: [https://github.com/paizy-hub/SASTRA](https://github.com/paizy-hub/SASTRA)
+---
