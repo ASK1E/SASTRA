@@ -9,23 +9,23 @@
 <body>
     <div class="container">
         <!-- Navigation Menu -->
-         <div class="navbar">
+        <div class="navbar">
             <nav> 
                 <ul>
-            <li><a href="#">Home</a></li>
-            <li><a href="#about">About</a></li>
-            <li><a href="#">Contact</a></li>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#">Contact</a></li>
                 </ul>
             </nav>
         </div>
 
-        <header>
+        <header class="fade-in">
             <h1>SASTRA</h1>
             <p class="subtitle">Static Application Security Testing and Risk Assessment</p>
         </header>
 
         <main>
-            <div class="upload-section">
+            <div class="upload-section fade-in">
                 <div class="drag-drop-zone" id="dragDropZone">
                     <img src="/api/placeholder/64/64" alt="upload" class="upload-icon">
                     <p>Drag & drop your Python file here or</p>
@@ -37,7 +37,7 @@
                 </div>
             </div>
 
-            <div class="scan-options">
+            <div class="scan-options fade-in">
                 <h3>Scan Configuration</h3>
                 <div class="options-grid">
                     <label class="checkbox-container">
@@ -62,7 +62,7 @@
                 <p class="progress-text">Scanning: <span id="progressText">0%</span></p>
             </div>
 
-            <div class="results-container hidden" id="resultsContainer">
+            <div class="results-container hidden fade-in" id="resultsContainer">
                 <div class="results-header">
                     <h2>Scan Results</h2>
                     <div class="filter-buttons">
@@ -84,15 +84,16 @@
             </div>
         </main>
     </div>
-    <div class="about-section" id="about">
+
+    <div class="about-section fade-in" id="about">
         <h2>About SASTRA</h2>
-            <p>
-                SASTRA (Static Application Security Testing and Risk Assessment) adalah alat untuk menganalisis keamanan dan mengidentifikasi risiko pada aplikasi Python Anda.
-                Tujuan kami adalah menyediakan solusi untuk meningkatkan keamanan kode Anda dengan mudah.
-            </p>
-            <p>
-                Dikembangkan dengan pendekatan modern, alat ini dirancang untuk developer yang ingin mengoptimalkan keamanan aplikasi mereka tanpa memerlukan pengetahuan mendalam tentang keamanan siber.
-            </p>
+        <p>
+            SASTRA (Static Application Security Testing and Risk Assessment) adalah alat untuk menganalisis keamanan dan mengidentifikasi risiko pada aplikasi Python Anda.
+            Tujuan kami adalah menyediakan solusi untuk meningkatkan keamanan kode Anda dengan mudah.
+        </p>
+        <p>
+            Dikembangkan dengan pendekatan modern, alat ini dirancang untuk developer yang ingin mengoptimalkan keamanan aplikasi mereka tanpa memerlukan pengetahuan mendalam tentang keamanan siber.
+        </p>
     </div>
 
     <script src="/static/script.js"></script>

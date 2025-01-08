@@ -296,8 +296,30 @@ class VulnerabilityScanner {
         }, 3000);
     }
 }
-  
-// Initialize scanner when document is ready
+
+// Initialize scanner and fade scroll functionality
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize the scanner
     window.scanner = new VulnerabilityScanner();
+
+    // Initialize fade scroll functionality
+    const fadeElements = document.querySelectorAll('.upload-section, .scan-options, .results-container, .about-section');
+    
+    const fadeScrollObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            } else {
+                entry.target.classList.remove('visible');
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
+
+    fadeElements.forEach(element => {
+        element.classList.add('fade-scroll');
+        fadeScrollObserver.observe(element);
+    });
 });
