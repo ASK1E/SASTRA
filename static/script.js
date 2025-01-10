@@ -1,3 +1,30 @@
+class Login {
+    constructor() {
+        this.signInBtn = document.querySelector("#sign-in-btn");
+        this.signUpBtn = document.querySelector("#sign-up-btn");
+        this.container = document.querySelector(".container");
+
+        this.addEventListeners();
+    }
+
+    addEventListeners() {
+        this.signUpBtn.addEventListener("click", () => {
+            this.container.classList.add("sign-up-mode");
+        });
+
+        this.signInBtn.addEventListener("click", () => {
+            this.container.classList.remove("sign-up-mode");
+        });
+    }
+}
+
+// Inisialisasi kelas Login
+document.addEventListener("DOMContentLoaded", () => {
+    new Login();
+});
+
+
+
 class VulnerabilityScanner {
     constructor() {
         this.initializeElements();
