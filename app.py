@@ -3,9 +3,12 @@ import json
 import subprocess
 import logging
 import tempfile
-from flask import Flask, jsonify, render_template, request, send_from_directory
+from flask import Flask, jsonify, render_template, request, send_from_directory, render_template, redirect, url_for, session
 from werkzeug.utils import secure_filename
 from io import BytesIO
+from werkzeug.security import generate_password_hash, check_password_hash
+import mysql.connector
+import re
 
 # Initialize Flask app
 app = Flask(__name__, static_folder='static')
@@ -118,7 +121,107 @@ class VulnerabilityScanner:
 scanner = VulnerabilityScanner()
 
 @app.route('/')
-def home():
+def root():
+    return redirect(url_for('login'))
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        
+        # Koneksi ke database
+        connection = get_db_connection()
+        if connection is None:
+            return render_template('login.html', error="Gagal terhubung ke database!")
+
+        cursor = connection.cursor()
+        
+        try:
+            # Query untuk mengambil data pengguna berdasarkan username
+            cursor.execute("SELECT password FROM users WHERE username = %s", (username,))
+            result = cursor.fetchone()  # Ambil satu hasil (username yang cocok)
+            
+            if result:
+                stored_password = result[0]
+                # Memverifikasi password dengan hash yang ada di database
+                if check_password_hash(stored_password, password):  # Gunakan check_password_hash
+                    session['username'] = username
+                    return redirect(url_for('dashboard'))
+                else:
+                    return render_template('login.html', error="Password salah!")
+            else:
+                return render_template('login.html', error="Username tidak ditemukan!")
+        except Exception as e:
+            return render_template('login.html', error=f"Terjadi kesalahan: {e}")
+        finally:
+            cursor.close()
+            connection.close()
+
+    return render_template('login.html')
+
+# Register
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        email = request.form['email']
+        password = request.form['password']
+
+        # Validasi password
+        password_regex = r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'
+        if not re.match(password_regex, password):
+            return render_template(
+                'register.html',
+                error="Password harus memiliki minimal 8 karakter, termasuk huruf besar, huruf kecil, angka, dan simbol."
+            )
+
+        # Koneksi ke database
+        connection = get_db_connection()
+        if connection is None:
+            return render_template(
+                'register.html',
+                error="Gagal terhubung ke database!"
+            )
+
+        cursor = connection.cursor()
+
+        try:
+            # Hash password sebelum menyimpan
+            hashed_password = generate_password_hash(password)
+
+            # Query untuk memasukkan data pengguna baru
+            cursor.execute(
+                "INSERT INTO users (username, email, password) VALUES (%s, %s, %s)",
+                (username, email, hashed_password)
+            )
+            connection.commit()
+
+            # Jika berhasil, arahkan ke form login dengan pesan sukses
+            success_message = "Registrasi berhasil! Silakan login."
+            return redirect(url_for('login', success=success_message))
+        except mysql.connector.IntegrityError:
+            # Jika username/email sudah terdaftar
+            return render_template(
+                'register.html',
+                error="Username atau email sudah terdaftar!"
+            )
+        except Exception as e:
+            return render_template(
+                'register.html',
+                error=f"Terjadi kesalahan: {e}"
+            )
+        finally:
+            cursor.close()
+            connection.close()
+
+    # Render halaman register jika metode GET
+    return render_template('register.html')
+
+@app.route('/dashboard')
+def dashboard():
+    print("Dashboard function called")
     return render_template('index.html')
 
 @app.route('/static/<path:path>')
